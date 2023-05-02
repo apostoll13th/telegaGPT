@@ -1,4 +1,4 @@
-import { Telegraf, session } from "telegraf";
+import { Telegraf, session, Markup, Scenes} from "telegraf";
 import config from 'config'
 
 import {message} from "telegraf/filters";
@@ -11,16 +11,59 @@ let INITIAL_SESSION = {
   messages: [],
 }
 
+const bot = new Telegraf(config.get('TELEGRAM_API_DEV'))
 
-const bot = new Telegraf(config.get('TELEGRAM_API'))
+// @follow-up TODO: это меню не то что нам нужно оно вызывается только при вызове команды
+// bot.command('menu', (ctx) => {
+//   const inlineKeyboard = {
+//     inline_keyboard: [
+//       [
+//         { text: 'Кнопка 1', callback_data: 'button1' },
+//         { text: 'Кнопка 2', callback_data: 'button2' },
+//       ],
+//       [
+//         { text: 'Кнопка 3', callback_data: 'button3' },
+//       ],
+//     ],
+//   };
 
-bot.use(session())
+//   ctx.telegram.sendMessage(ctx.chat.id, 'Выберите действие:', { reply_markup: inlineKeyboard });
+// });
+
+// // Обработчик нажатия на кнопки
+// bot.action('button1', (ctx) => {
+//   ctx.reply('Вы выбрали Кнопку 1');
+// });
+
+// bot.action('button2', (ctx) => {
+//   ctx.reply('Вы выбрали Кнопку 2');
+// });
+
+// bot.action('button3', (ctx) => {
+//   ctx.reply('Вы выбрали Кнопку 3');
+// });
+
+
+
+
 
 bot.command('new', async (ctx) => {
   ctx.session = INITIAL_SESSION
   INITIAL_SESSION.messages = []
-  await ctx.reply(code("Жду сообщения или текста от тебя друг мой"))
-})
+  await ctx.reply(
+    code("Жду сообщения или текста от тебя друг мой")
+  );
+});
+
+// bot.command('new', async (ctx) => {
+//   const button = Markup.callbackButton('Нажми на меня','pressed')
+//   ctx.session = INITIAL_SESSION
+//   INITIAL_SESSION.messages = []
+//   await ctx.reply(code("Жду сообщения или текста от тебя друг мой"),Markup.inlineKeyboard([
+//     [button]
+//   ]));
+
+// })
 
 
 bot.on(message('voice'), async (ctx) =>{
@@ -81,18 +124,29 @@ bot.on(message('text'), async (ctx) => {
   await ctx.reply(response.content)
   ctx.session.blocked = false
 }
-catch (e) {
-  console.log(e.message, "error with text message")
+catch (error) {
+  if(error.code && error.code == 400) {
+    console.log("Ошибка 400: ", error.description)
+    // Код для перезапуска бота, например:
+    bot.launch()
 }
+}
+bot.catch((error, ctx) => {
+  if(error.code && error.code == 400) {
+    console.log("Ошибка 400: ", error.description)
+    bot.launch()
+  }
 })
 
 bot.command('start', async (ctx) => {
   ctx.session = INITIAL_SESSION
   await ctx.reply(code("Жду сообщения или текста от тебя друг мой"))
 })
+
+
+
+
 bot.launch()
 
 process.once('SIGINT', () => bot.stop('SIGINT'))
 process.once('SIGTERM', () => bot.stop('SIGTERM'))
-
-
