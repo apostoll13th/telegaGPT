@@ -124,16 +124,18 @@ bot.on(message('text'), async (ctx) => {
   await ctx.reply(response.content)
   ctx.session.blocked = false
 }
-catch (error) {
+catch (e) {
   if(error.code && error.code == 400) {
     console.log("Ошибка 400: ", error.description)
     // Код для перезапуска бота, например:
     bot.launch()
+  }
 }
-}
+})
 bot.catch((error, ctx) => {
   if(error.code && error.code == 400) {
     console.log("Ошибка 400: ", error.description)
+    // Код для перезапуска бота, например:
     bot.launch()
   }
 })
