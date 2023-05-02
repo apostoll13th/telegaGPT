@@ -11,40 +11,7 @@ let INITIAL_SESSION = {
   messages: [],
 }
 
-const bot = new Telegraf(config.get('TELEGRAM_API_DEV'))
-
-// @follow-up TODO: это меню не то что нам нужно оно вызывается только при вызове команды
-// bot.command('menu', (ctx) => {
-//   const inlineKeyboard = {
-//     inline_keyboard: [
-//       [
-//         { text: 'Кнопка 1', callback_data: 'button1' },
-//         { text: 'Кнопка 2', callback_data: 'button2' },
-//       ],
-//       [
-//         { text: 'Кнопка 3', callback_data: 'button3' },
-//       ],
-//     ],
-//   };
-
-//   ctx.telegram.sendMessage(ctx.chat.id, 'Выберите действие:', { reply_markup: inlineKeyboard });
-// });
-
-// // Обработчик нажатия на кнопки
-// bot.action('button1', (ctx) => {
-//   ctx.reply('Вы выбрали Кнопку 1');
-// });
-
-// bot.action('button2', (ctx) => {
-//   ctx.reply('Вы выбрали Кнопку 2');
-// });
-
-// bot.action('button3', (ctx) => {
-//   ctx.reply('Вы выбрали Кнопку 3');
-// });
-
-
-
+const bot = new Telegraf(config.get('TELEGRAM_API'))
 
 
 bot.command('new', async (ctx) => {
@@ -54,17 +21,6 @@ bot.command('new', async (ctx) => {
     code("Жду сообщения или текста от тебя друг мой")
   );
 });
-
-// bot.command('new', async (ctx) => {
-//   const button = Markup.callbackButton('Нажми на меня','pressed')
-//   ctx.session = INITIAL_SESSION
-//   INITIAL_SESSION.messages = []
-//   await ctx.reply(code("Жду сообщения или текста от тебя друг мой"),Markup.inlineKeyboard([
-//     [button]
-//   ]));
-
-// })
-
 
 bot.on(message('voice'), async (ctx) =>{
   try{
