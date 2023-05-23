@@ -81,7 +81,7 @@ bot.on(message('text'), async (ctx) => {
   const response = await openai.chat(ctx.session.messages)
   
   ctx.session.messages.push({
-    role: openai.roles.ASSISTANT1,
+    role: openai.roles.ASSISTANT,
     content: response.content
   })
   await ctx.reply(response.content)
