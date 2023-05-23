@@ -48,8 +48,15 @@ bot.on(message('voice'), async (ctx) =>{
     await ctx.reply(response.content)
 
 
-  } catch(e) {
-     console.log('Error voice -  ${e}')
+  } catch(error) {
+    if(error.code && error.code == 400) {
+      console.log("Ошибка 400 Бот упал", error.description)
+      setTimeout(() => process.exit(1), 1000)
+    }
+    if(error.code && error.code == 429) {
+      console.log("Ошибка 429 Бот упал потому что запрос большой", error.description)
+      setTimeout(() => process.exit(1), 1000)
+    }
   }
 } )
 
@@ -74,25 +81,34 @@ bot.on(message('text'), async (ctx) => {
   const response = await openai.chat(ctx.session.messages)
   
   ctx.session.messages.push({
-    role: openai.roles.ASSISTANT,
+    role: openai.roles.ASSISTANT1,
     content: response.content
   })
   await ctx.reply(response.content)
   ctx.session.blocked = false
 }
-catch (e) {
+catch (error) {
   if(error.code && error.code == 400) {
-    console.log("Ошибка 400: ", error.description)
-    // Код для перезапуска бота, например:
-    bot.launch()
+    console.log("Ошибка 400 Бот упал", error.description)
+    setTimeout(() => process.exit(1), 1000)
   }
 }
 })
 bot.catch((error, ctx) => {
-  if(error.code && error.code == 400) {
-    console.log("Ошибка 400: ", error.description)
-    // Код для перезапуска бота, например:
-    bot.launch()
+  if(error.code == 400) {
+    console.log("Ошибка 400 Бот упал", error.description)
+    process.on('exit', function () {
+      require('child_process').spawn(process.argv.shift(), process.argv, {
+        cwd: process.cwd(),
+        detached: true,
+        stdio: 'inherit'
+      });
+    });
+    process.exit();
+  }
+  if(error.code && error.code == 429) {
+    console.log("Ошибка 429 Бот упал потому что запрос большой", error.description)
+    setTimeout(() => process.exit(1), 1000)
   }
 })
 

@@ -1,7 +1,9 @@
 import { Configuration, OpenAIApi } from "openai"
 import config from 'config'
 import {createReadStream} from 'fs'
+import { createRequire } from "module"
 
+const require = createRequire(import.meta.url)
 
 class OpenAi {
 
@@ -27,8 +29,16 @@ class OpenAi {
             return response.data.choices[0].message
 
         } catch (error) {
-            console.log(error.message, 'error with chat')
-        }
+            console.log(error.message)
+            process.on('exit', function () {
+                require('child_process').spawn(process.argv.shift(), process.argv, {
+                  cwd: process.cwd(),
+                  detached: true,
+                  stdio: 'inherit'
+                });
+              });
+            process.exit(1) 
+            }
     }
 
 
