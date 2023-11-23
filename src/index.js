@@ -1,4 +1,5 @@
 import { Telegraf, session, Markup, Scenes} from "telegraf";
+import { Markup } from 'telegraf';
 import config from 'config'
 
 import {message} from "telegraf/filters";
@@ -10,6 +11,11 @@ let count = 0;
 let INITIAL_SESSION = {
   messages: [],
 }
+
+
+const newContextButton = Markup.keyboard([
+  Markup.button.callback('Новый контекст', 'newContext')
+]).resize()
 
 const bot = new Telegraf(config.get('TELEGRAM_API'))
 
@@ -111,6 +117,14 @@ bot.catch((error, ctx) => {
     setTimeout(() => process.exit(1), 1000)
   }
 })
+bot.start(async (ctx) => {
+  ctx.reply('Привет!', newContextButton)   
+})
+bot.action('newContext', (ctx) => {
+  ctx.session = INITIAL_SESSION
+  ctx.reply('Сессия и контекст обновлены так делай когда начинаешь новый диалог, чтобы получить более качественный ответ')
+})
+
 
 bot.command('start', async (ctx) => {
   ctx.session = INITIAL_SESSION
