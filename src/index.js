@@ -13,10 +13,6 @@ let INITIAL_SESSION = {
 }
 
 
-const newContextButton = Markup.keyboard([
-  Markup.button.callback('Новый контекст', 'newContext')
-]).resize()
-
 const bot = new Telegraf(config.get('TELEGRAM_API'))
 
 
@@ -117,15 +113,6 @@ bot.catch((error, ctx) => {
     setTimeout(() => process.exit(1), 1000)
   }
 })
-bot.start(async (ctx) => {
-  ctx.reply('Привет!', newContextButton)   
-})
-bot.action('newContext', (ctx) => {
-  ctx.session = INITIAL_SESSION
-  ctx.reply('Сессия и контекст обновлены так делай когда начинаешь новый диалог, чтобы получить более качественный ответ')
-})
-
-
 bot.command('start', async (ctx) => {
   ctx.session = INITIAL_SESSION
   await ctx.reply(code("Жду сообщения или текста от тебя друг мой"))
