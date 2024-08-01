@@ -1,9 +1,9 @@
-import { Configuration, OpenAIApi } from "openai"
-import config from 'config'
-import {createReadStream} from 'fs'
-import { createRequire } from "module"
+import { Configuration, OpenAIApi } from "openai";
+import config from 'config';
+import { createReadStream } from 'fs';
+import { createRequire } from "module";
 
-const require = createRequire(import.meta.url)
+const require = createRequire(import.meta.url);
 
 class OpenAi {
 
@@ -16,46 +16,34 @@ class OpenAi {
     constructor(apiKey) {
         const configuration = new Configuration({
             apiKey
-        })
-        this.openai = new OpenAIApi(configuration)
+        });
+        this.openai = new OpenAIApi(configuration);
     }
 
     async chat(messages) {
         try {
             const response = await this.openai.createChatCompletion({
-                model:'gpt-3.5-turbo-1106',
+                model: 'gpt-4-turbo-mini',
                 messages
-            })
-            return response.data.choices[0].message
-
+            });
+            return response.data.choices[0].message;
         } catch (error) {
-            console.log(error.message)
-            process.on('exit', function () {
-                require('child_process').spawn(process.argv.shift(), process.argv, {
-                  cwd: process.cwd(),
-                  detached: true,
-                  stdio: 'inherit'
-                });
-              });
-            process.exit(1) 
-            }
+            console.error(error.message);
+            process.exit(1);
+        }
     }
-
 
     async transcription(filePath) {
         try {
-          const response = await this.openai.createTranscription(
-            createReadStream(filePath),
-            'whisper-1'
-          )
-          return response.data.text
+            const response = await this.openai.createTranscription(
+                createReadStream(filePath),
+                'whisper-1'
+            );
+            return response.data.text;
         } catch (error) {
-            console.log('error with transcription', error.message)
+            console.error('Error with transcription:', error.message);
         }
     }
 }
 
-
-
-
-export const openai = new OpenAi(config.get('OPENAI_API'))
+export const openai = new OpenAi(config.get('OPENAI_API'));
