@@ -1,7 +1,7 @@
-import { Configuration, OpenAIApi } from "openai";
+import OpenAI from 'openai';
 import config from 'config';
 import { createReadStream } from 'fs';
-import { createRequire } from "module";
+import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
 
@@ -14,19 +14,18 @@ class OpenAi {
     }
 
     constructor(apiKey) {
-        const configuration = new Configuration({
-            apiKey
+        this.openai = new OpenAI({
+            apiKey: apiKey
         });
-        this.openai = new OpenAIApi(configuration);
     }
 
     async chat(messages) {
         try {
-            const response = await this.openai.createChatCompletion({
-                model: 'gpt-4-turbo-mini',
+            const response = await this.openai.chat.completions.create({
+                model: 'gpt-4o-mini',
                 messages
             });
-            return response.data.choices[0].message;
+            return response.choices[0].message;
         } catch (error) {
             console.error(error.message);
             process.exit(1);
@@ -35,11 +34,11 @@ class OpenAi {
 
     async transcription(filePath) {
         try {
-            const response = await this.openai.createTranscription(
-                createReadStream(filePath),
-                'whisper-1'
-            );
-            return response.data.text;
+            const response = await this.openai.audio.transcriptions.create({
+                file: createReadStream(filePath),
+                model: 'whisper-1'
+            });
+            return response.text;
         } catch (error) {
             console.error('Error with transcription:', error.message);
         }

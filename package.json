@@ -1,8 +1,8 @@
 {
   "name": "telegachatgpt",
   "version": "1.0.0",
-  "description": "privateTelegramBot",
-  "main": "index.js",
+  "description": "Private Telegram Bot",
+  "main": "src/index.js",
   "type": "module",
   "scripts": {
     "dev": "nodemon ./src/index.js",
@@ -11,15 +11,15 @@
   "author": "Denis Davidoff",
   "license": "MIT",
   "devDependencies": {
-    "config": "^3.3.9",
+    "config": "^3.3.12",
     "cross-env": "^7.0.3",
     "nodemon": "^2.0.22",
-    "telegraf": "^4.12.2"
+    "telegraf": "^4.16.3"
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
-    "axios": "^1.4.0",
-    "fluent-ffmpeg": "^2.1.2",
-    "openai": "^3.2.1"
+    "axios": "^1.7.2",
+    "fluent-ffmpeg": "^2.1.3",
+    "openai": "^4.53.2"
   }
 }
