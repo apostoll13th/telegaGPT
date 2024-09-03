@@ -4,6 +4,7 @@ import { createWriteStream } from "fs";
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import installer from '@ffmpeg-installer/ffmpeg';
+import fs from 'fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -12,21 +13,37 @@ class OggConverter {
         ffmpeg.setFfmpegPath(installer.path);
     }
 
+    ensureDirectoryExists(dirPath) {
+        if (!fs.existsSync(dirPath)) {
+            fs.mkdirSync(dirPath, { recursive: true });
+            console.log(`Директория создана: ${dirPath}`);
+        }
+    }
+
     async create(url, fileName) {
         try {
-            const oggPath = resolve(__dirname, "../voice/", `${fileName}.ogg`);
+            const voiceDir = resolve(__dirname, "../voice");
+            this.ensureDirectoryExists(voiceDir);
+
+            const oggPath = resolve(voiceDir, `${fileName}.ogg`);
             const response = await axios({
                 method: "get",
                 url,
                 responseType: "stream",
             });
-            return new Promise((resolve) => {
+
+            return new Promise((resolve, reject) => {
                 const stream = createWriteStream(oggPath);
                 response.data.pipe(stream);
                 stream.on('finish', () => resolve(oggPath));
+                stream.on('error', (error) => {
+                    console.error("Ошибка при записи файла:", error);
+                    reject(error);
+                });
             });
         } catch (error) {
-            console.error("Error creating file:", error.message);
+            console.error("Ошибка при создании файла:", error.message);
+            throw error;
         }
     }
 
@@ -38,11 +55,15 @@ class OggConverter {
                     .inputOption('-t 30')
                     .output(outputPath)
                     .on('end', () => resolve(outputPath))
-                    .on('error', (error) => reject(error.message))
+                    .on('error', (error) => {
+                        console.error('Ошибка при конвертации в MP3:', error);
+                        reject(error);
+                    })
                     .run();
             });
         } catch (error) {
-            console.error('Error creating MP3:', error.message);
+            console.error('Ошибка при создании MP3:', error.message);
+            throw error;
         }
     }
 }
